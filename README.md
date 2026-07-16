@@ -2,6 +2,10 @@
 
 > **See Beyond the Pixels.**
 
+<p align="center">
+  <video src="./VisualSense.mp4" controls="controls" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></video>
+</p>
+
 VisualSense is an AI Visual Intelligence Platform. Upload any image — documents, screenshots, charts, handwritten notes, receipts, landscapes, medical reports, code, math equations, or anything else — and let AI understand everything inside it. Then chat naturally to explore, extract, and learn more.
 
 ---
