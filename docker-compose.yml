@@ -1,0 +1,75 @@
+version: "3.8"
+
+services:
+  # ═══════════════════════════════════════
+  # Frontend — Next.js Application
+  # ═══════════════════════════════════════
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - visualsense
+
+  # ═══════════════════════════════════════
+  # Backend — FastAPI Application
+  # ═══════════════════════════════════════
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - uploads:/app/uploads
+      - db-data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - visualsense
+
+  # ═══════════════════════════════════════
+  # Redis — Cache & Rate Limiting
+  # ═══════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - visualsense
+    command: redis-server --appendonly yes
+
+volumes:
+  uploads:
+    driver: local
+  db-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  visualsense:
+    driver: bridge
